@@ -1,0 +1,8 @@
+<resources>
+    <string name="app_name">GameAndroid</string>
+    <string name="game_start">GAME START</string>
+    <string name="title">title</string>
+    <string name="startGame">startGame</string>
+    <string name="optionsGame">optionsGame</string>
+    <string name="exitGame">exitGame</string>
+</resources>
