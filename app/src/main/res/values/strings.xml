@@ -5,4 +5,5 @@
     <string name="startGame">startGame</string>
     <string name="optionsGame">optionsGame</string>
     <string name="exitGame">exitGame</string>
+    <string name="save_options">save options</string>
 </resources>

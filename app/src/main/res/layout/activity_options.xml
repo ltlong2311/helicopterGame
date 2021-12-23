@@ -20,21 +20,19 @@
             android:layout_marginTop="80dp"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:background="@drawable/mode_easy"
-             />
+            tools:ignore="ContentDescription" />
         <CheckBox
             android:id="@+id/changeSound"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_margin="5dp"
-            android:button="@drawable/sound_on"/>
+            android:layout_margin="5dp" />
 
         <CheckBox
             android:id="@+id/changeMusic"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_margin="5dp"
-            android:button="@drawable/music_on"/>
+            />
 
         <ImageView
             android:id="@+id/btnSave"
@@ -42,7 +40,7 @@
             android:layout_height="wrap_content"
             android:layout_marginTop="50dp"
             android:background="@drawable/save"
-            />
+            android:contentDescription="@string/save_options" />
 
 <!--        <TextView-->
 <!--            android:id="@+id/btnSave"-->

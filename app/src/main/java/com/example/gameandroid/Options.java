@@ -27,6 +27,7 @@ public class Options extends AppCompatActivity {
 
         getViews();
         SharedPreferences preferences = this.getApplicationContext().getSharedPreferences("gameSettings", Context.MODE_PRIVATE);
+        SharedPreferences.Editor editor = preferences.edit();
         gameMode = preferences.getInt("mode", 1);
         music = preferences.getBoolean("music", true);
         sound = preferences.getBoolean("sound", true);
@@ -58,10 +59,18 @@ public class Options extends AppCompatActivity {
         });
 
         btnSave.setOnClickListener(v -> {
-            Intent myIntent = new Intent(Options.this, Home.class);
-            this.startActivity(myIntent);
+            editor.putInt("mode", gameMode);
+            editor.putBoolean("music", music);
+            editor.putBoolean("sound", sound);
+            editor.apply();
+            back();
         });
 
+    }
+
+    private void back() {
+        Intent myIntent = new Intent(Options.this, Home.class);
+        this.startActivity(myIntent);
     }
 
     private void getViews() {
@@ -84,6 +93,9 @@ public class Options extends AppCompatActivity {
             case 3:
                 System.out.println("hard level");
                 btnMode.setImageResource(R.drawable.mode_hard);
+                break;
+            default:
+                btnMode.setImageResource(R.drawable.mode_easy);
                 break;
         }
     }

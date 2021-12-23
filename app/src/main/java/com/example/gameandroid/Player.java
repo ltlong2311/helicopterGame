@@ -6,6 +6,7 @@ import android.graphics.Canvas;
 
 
 public class Player extends GameObject {
+    public static final int MAX_HEALTH_POINTS = 5;
     private Bitmap spritesheet;
     private int score;
     private double dya;
@@ -13,9 +14,9 @@ public class Player extends GameObject {
     private boolean playing;
     private Animation animation = new Animation();
     private long startTime;
+    private int healthPoints = MAX_HEALTH_POINTS;
 
     public Player(Bitmap res, int w, int h, int numFrames) {
-
         x = 100;
         y = GamePanel.HEIGHT / 2;
         dy = 0;
@@ -75,6 +76,16 @@ public class Player extends GameObject {
         return playing;
     }
 
+    public int getHealthPoint() {
+        return healthPoints;
+    }
+
+    public void setHealthPoint(int healthPoints) {
+        // Only allow positive values
+        if (healthPoints >= 0)
+            this.healthPoints = healthPoints;
+    }
+
     public void setPlaying(boolean b) {
         playing = b;
     }
@@ -85,7 +96,6 @@ public class Player extends GameObject {
     public void resetDY() {
         dy = 0;
     }
-
 
     public void resetScore() {
         score = 0;

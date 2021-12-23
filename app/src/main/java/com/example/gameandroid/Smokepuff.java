@@ -14,7 +14,7 @@ public class Smokepuff extends GameObject{
     }
     public void update()
     {
-        x-=10;
+        x -= 10;
     }
     public void draw(Canvas canvas)
     {

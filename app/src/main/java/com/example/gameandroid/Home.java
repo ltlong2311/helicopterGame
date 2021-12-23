@@ -23,13 +23,6 @@ public class Home extends AppCompatActivity {
         setContentView(R.layout.activity_main);
         getViews();
 
-        SharedPreferences preferences = this.getApplicationContext().getSharedPreferences("gameSettings", Context.MODE_PRIVATE);
-        SharedPreferences.Editor editor = preferences.edit();
-        editor.putInt("mode", 2);
-        editor.putBoolean("music", true);
-        editor.putBoolean("sound", false);
-        editor.apply();
-
         btnStart.setOnClickListener(v -> {
             Intent myIntent = new Intent(Home.this, Game.class);
             myIntent.putExtra("key", "url");
