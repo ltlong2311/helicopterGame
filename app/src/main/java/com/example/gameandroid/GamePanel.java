@@ -3,6 +3,7 @@ package com.example.gameandroid;
 import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.res.AssetManager;
+import android.content.res.Resources;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
@@ -36,14 +37,14 @@ public class GamePanel extends SurfaceView implements SurfaceHolder.Callback {
     private ArrayList<Missile> missiles;
     private Random rand = new Random();
     private boolean newGameCreated;
-
+    private boolean isFocusUpButton;
+    private boolean isFocusAimButton;
     private Explosion explosion;
     private long startReset;
     private boolean reset;
     private boolean disappear;
     private boolean started;
     private int best = 0;
-
 
     public GamePanel(Context context) {
         super(context);
@@ -93,20 +94,43 @@ public class GamePanel extends SurfaceView implements SurfaceHolder.Callback {
 
     @Override
     public boolean onTouchEvent(MotionEvent event) {
+        int touchX = (int) event.getX();
+        int touchY = (int) event.getY();
         if (event.getAction() == MotionEvent.ACTION_DOWN) {
             if (!player.getPlaying() && newGameCreated && reset) {
                 player.setPlaying(true);
-                player.setUp(true);
+//                player.setUp(true);
             }
             if (player.getPlaying()) {
                 if (!started) started = true;
                 reset = false;
-                player.setUp(true);
+                float scaleX = (float) getWidth() / (WIDTH * 1.f);
+                float scaleY =(float) getHeight() / (HEIGHT * 1.f);
+                //up button position
+                Rect up = new Rect((int) (60*scaleX), (int) ((HEIGHT - 110)*scaleY), (int) (110*scaleX),
+                        (int) ((HEIGHT - 60)*scaleY));
+                if (up.contains(touchX, touchY)) {
+                    isFocusUpButton = true;
+                    player.setUp(true);
+                };
+                // aim button position
+                Rect aim = new Rect((int) ((WIDTH - 125)*scaleX), (int) ((HEIGHT - 110)*scaleY),
+                         (int) ((WIDTH - 75)*scaleX), (int) ((HEIGHT - 60)*scaleY));
+//                System.out.println(touchX + " : " + touchY);
+                if (aim.contains(touchX, touchY)){
+                    isFocusAimButton = true;
+                    System.out.println("Touched Aim Button");
+                } else {
+                    isFocusUpButton = true;
+                    player.setUp(true);
+                }
             }
             return true;
         }
         if (event.getAction() == MotionEvent.ACTION_UP) {
             player.setUp(false);
+            isFocusUpButton = false;
+            isFocusAimButton = false;
             return true;
         }
         return super.onTouchEvent(event);
@@ -116,18 +140,16 @@ public class GamePanel extends SurfaceView implements SurfaceHolder.Callback {
         if (player.getPlaying()) {
             bg.update();
             player.update();
-
             //thêm tên lửa vào timer
             long missileElapsed = (System.nanoTime() - missileStartTime) / 1000000;
             if (missileElapsed > (2000 - player.getScore() / 4)) {
 
-                System.out.println("making missile");
+//                System.out.println("making missile");
                 //tên lửa đầu tiên luôn đi ở giữa
                 if (missiles.size() == 0) {
                     missiles.add(new Missile(BitmapFactory.decodeResource(getResources(), R.drawable.
                             missile), WIDTH + 10, HEIGHT / 2, 45, 15, player.getScore(), 13));
                 } else {
-
                     missiles.add(new Missile(BitmapFactory.decodeResource(getResources(), R.drawable.missile),
                             WIDTH + 10, (int) (rand.nextDouble() * (HEIGHT)), 45, 15, player.getScore(), 13));
                 }
@@ -231,6 +253,8 @@ public class GamePanel extends SurfaceView implements SurfaceHolder.Callback {
             if(!disappear) {
                 player.draw(canvas);
                 healthBar.draw(canvas);
+                drawControllerButton(canvas);
+                drawAimButton(canvas);
             }
             for (Smokepuff sp : smoke) {
                 sp.draw(canvas);   // draw các smoke puff trong vòng lặp tiếp theo
@@ -247,10 +271,50 @@ public class GamePanel extends SurfaceView implements SurfaceHolder.Callback {
         }
     }
 
+    private void drawControllerButton(Canvas canvas) {
+        //
+//        Paint mPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
+//        mPaint.setColor(Color.parseColor("#ebf2ef"));
+//        mPaint.setStrokeWidth(1);
+//        mPaint.setStyle(Paint.Style.STROKE);
+//        canvas.drawRect(60, HEIGHT - 110, 120,HEIGHT - 50, mPaint); // -5 tu icon den border
+
+        Paint paint = new Paint();
+        Resources res = getResources();
+        Bitmap up;
+        if (!isFocusUpButton){
+            up = BitmapFactory.decodeResource(res, R.drawable.up10);
+        } else {
+            up = BitmapFactory.decodeResource(res, R.drawable.up10a);
+        }
+        canvas.drawBitmap(up, 55, HEIGHT - 115, paint);
+
+        //
+        Paint mPaint2 = new Paint(Paint.ANTI_ALIAS_FLAG);
+        mPaint2.setColor(Color.parseColor("#d1e0de"));
+        mPaint2.setStrokeWidth(1);
+        mPaint2.setStyle(Paint.Style.STROKE);
+        float radius = 45.0f;
+        canvas.drawRect(WIDTH - 125, HEIGHT - 110, WIDTH - 75,HEIGHT - 60, mPaint2);
+//        canvas.drawCircle(WIDTH - 100, HEIGHT - 95, radius, mPaint2);
+    }
+
+    private void drawAimButton(Canvas canvas) {
+        Paint aimBtnStyle = new Paint();
+        Resources res = getResources();
+        Bitmap aim;
+        if(!isFocusAimButton){
+            aim = BitmapFactory.decodeResource(res, R.drawable.aim_12);
+        } else {
+            aim = BitmapFactory.decodeResource(res, R.drawable.aim_11);
+        }
+        canvas.drawBitmap(aim, WIDTH - 125, HEIGHT - 110, aimBtnStyle);
+    }
+
     private void drawText(Canvas canvas)
     {
-        Paint paint = new Paint();
-        paint.setTextSize(23);
+        Paint paint = new Paint(Paint.ANTI_ALIAS_FLAG);
+        paint.setTextSize(20);
         paint.setColor(Color.parseColor("#00235e"));
         paint.setTypeface(Typeface.createFromAsset(getContext().getAssets(),"SourceSansPro-Bold.otf"));
         canvas.drawText("DISTANCE: " + (player.getScore()*3), 10, HEIGHT - 10, paint);
@@ -262,13 +326,13 @@ public class GamePanel extends SurfaceView implements SurfaceHolder.Callback {
 
         if(!player.getPlaying()&&newGameCreated&&reset)
         {
-            Paint style = new Paint();
+            Paint style = new Paint(Paint.ANTI_ALIAS_FLAG);
             style.setTextSize(30);
             style.setColor(Color.parseColor("#01466e"));
             style.setTypeface(Typeface.createFromAsset(getContext().getAssets(),"SourceSansPro-Bold.otf"));
             canvas.drawText("PRESS TO START", WIDTH/2-50, HEIGHT/2, style);
 
-            Paint style2 = new Paint();
+            Paint style2 = new Paint(Paint.ANTI_ALIAS_FLAG);
             style2.setTextSize(15);
             style2.setColor(Color.parseColor("#283000"));
             style2.setTypeface(Typeface.createFromAsset(getContext().getAssets(),"SourceSansPro-Regular.otf"));

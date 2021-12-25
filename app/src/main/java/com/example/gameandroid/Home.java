@@ -33,9 +33,9 @@ public class Home extends AppCompatActivity {
             this.startActivity(myIntent);
         });
         btnExit.setOnClickListener(v -> {
-            finish();
             System.exit(0);
             android.os.Process.killProcess(android.os.Process.myPid());
+            finish();
         });
     }
 

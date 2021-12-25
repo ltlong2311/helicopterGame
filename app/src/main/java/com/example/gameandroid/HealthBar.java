@@ -14,10 +14,10 @@ public class HealthBar {
         this.width = width;
         this.height = height;
         this.margin = margin;
-        this.borderPaint = new Paint();
+        this.borderPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
         borderPaint.setColor(Color.parseColor("#bdf0ff"));
 
-        this.healthPaint = new Paint();
+        this.healthPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
         healthPaint.setColor(Color.parseColor("#41c200"));
     }
 

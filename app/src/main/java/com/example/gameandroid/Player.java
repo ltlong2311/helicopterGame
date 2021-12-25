@@ -50,10 +50,10 @@ public class Player extends GameObject {
         animation.update();
 
         if (up) {
-            dy = (int)(dya-=1.1);
+            dy = (int)(dya -= 0.8);
 //            dy -= 5;
         } else {
-            dy = (int)(dya+=1.1);
+            dy = (int)(dya += 0.8);
 //            dy += 5;
         }
 
