@@ -18,12 +18,12 @@ public class Animation {
     public void setDelay(long d){delay = d;}
     public void setFrame(int i){currentFrame= i;}
 
+
     public void update()
     {
         long elapsed = (System.nanoTime()-startTime)/1000000;
 
-        if(elapsed>delay)
-        {
+        if(elapsed>delay) {
             currentFrame++;
             startTime = System.nanoTime();
         }

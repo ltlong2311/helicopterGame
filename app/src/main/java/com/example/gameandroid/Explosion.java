@@ -11,8 +11,9 @@ public class Explosion {
     private int row;
     private Animation animation = new Animation();
     private Bitmap spritesheet;
+    private boolean end;
 
-    public Explosion(Bitmap res, int x, int y, int w, int h, int numFrames)
+    public Explosion(Bitmap res, int x, int y, int w, int h, int numFrames, long delay)
     {
         this.x = x;
         this.y = y;
@@ -25,13 +26,11 @@ public class Explosion {
 
         for(int i = 0; i<image.length; i++)
         {
-            if(i%5==0&&i>0)row++;
+            if(i%5==0 && i>0)row++;
             image[i] = Bitmap.createBitmap(spritesheet, (i-(5*row))*width, row*height, width, height);
         }
         animation.setFrames(image);
-        animation.setDelay(10);
-
-
+        animation.setDelay(delay);
 
     }
     public void draw(Canvas canvas)
@@ -50,4 +49,8 @@ public class Explosion {
         }
     }
     public int getHeight(){return height;}
+
+    public void setEnd(boolean end) {
+        this.end = end;
+    }
 }

@@ -11,6 +11,10 @@ import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.Rect;
 import android.graphics.Typeface;
+import android.media.AudioAttributes;
+import android.media.AudioManager;
+import android.media.SoundPool;
+import android.os.Build;
 import android.view.MotionEvent;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
@@ -19,6 +23,7 @@ import androidx.annotation.NonNull;
 
 import java.io.InputStream;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Random;
 
 @SuppressLint({"MissingSuperCall", "ClickableViewAccessibility"})
@@ -27,14 +32,19 @@ public class GamePanel extends SurfaceView implements SurfaceHolder.Callback {
     public static final int WIDTH = 856;
     public static final int HEIGHT = 480;
     public static final int MOVESPEED = -5;
+    public static final int MAX_HEALTH_POINTS = 9;
     private long smokeStartTime;
     private long missileStartTime;
+    private long enemyStartTime;
     private MainThread thread;
     private Background bg;
     private Player player;
     private HealthBar healthBar;
     private ArrayList<Smokepuff> smoke;
     private ArrayList<Missile> missiles;
+    private List<Bullet> bulletList;
+    private List<Enemy> enemyList;
+//    private List<HealthBar> healthBarEnemyList;
     private Random rand = new Random();
     private boolean newGameCreated;
     private boolean isFocusUpButton;
@@ -45,6 +55,8 @@ public class GamePanel extends SurfaceView implements SurfaceHolder.Callback {
     private boolean disappear;
     private boolean started;
     private int best = 0;
+    private SoundPool soundPool;
+    int sound1;
 
     public GamePanel(Context context) {
         super(context);
@@ -60,9 +72,13 @@ public class GamePanel extends SurfaceView implements SurfaceHolder.Callback {
     public void surfaceCreated(@NonNull SurfaceHolder holder) {
         bg = new Background(BitmapFactory.decodeResource(getResources(), R.drawable.bg4));
         player = new Player(BitmapFactory.decodeResource(getResources(), R.drawable.helicopter), 65, 25, 3);
-        healthBar = new HealthBar(player, 60, 12, 2);
+        healthBar = new HealthBar(player, 60, 12, 2, MAX_HEALTH_POINTS);
         smoke = new ArrayList<Smokepuff>();
         missiles = new ArrayList<Missile>();
+        bulletList = new ArrayList<Bullet>();
+        enemyList = new ArrayList<Enemy>();
+//        healthBarEnemyList = new ArrayList<HealthBar>();
+        enemyStartTime = System.nanoTime();
         smokeStartTime = System.nanoTime();
         missileStartTime = System.nanoTime();
         thread = new MainThread(getHolder(), this);
@@ -107,18 +123,21 @@ public class GamePanel extends SurfaceView implements SurfaceHolder.Callback {
                 float scaleX = (float) getWidth() / (WIDTH * 1.f);
                 float scaleY =(float) getHeight() / (HEIGHT * 1.f);
                 //up button position
-                Rect up = new Rect((int) (60*scaleX), (int) ((HEIGHT - 110)*scaleY), (int) (110*scaleX),
-                        (int) ((HEIGHT - 60)*scaleY));
-                if (up.contains(touchX, touchY)) {
-                    isFocusUpButton = true;
-                    player.setUp(true);
-                };
+//                Rect up = new Rect((int) (60*scaleX), (int) ((HEIGHT - 110)*scaleY), (int) (110*scaleX),
+//                        (int) ((HEIGHT - 60)*scaleY));
+//                if (up.contains(touchX, touchY)) {
+//                    isFocusUpButton = true;
+//                    player.setUp(true);
+//                };
                 // aim button position
-                Rect aim = new Rect((int) ((WIDTH - 125)*scaleX), (int) ((HEIGHT - 110)*scaleY),
-                         (int) ((WIDTH - 75)*scaleX), (int) ((HEIGHT - 60)*scaleY));
+                Rect aim = new Rect((int) ((WIDTH - 135)*scaleX), (int) ((HEIGHT - 120)*scaleY),
+                         (int) ((WIDTH - 65)*scaleX), (int) ((HEIGHT - 40)*scaleY));
 //                System.out.println(touchX + " : " + touchY);
                 if (aim.contains(touchX, touchY)){
                     isFocusAimButton = true;
+                    bulletList.add(new Bullet(
+                            BitmapFactory.decodeResource(getResources(), R.drawable.bullet),
+                            player));
                     System.out.println("Touched Aim Button");
                 } else {
                     isFocusUpButton = true;
@@ -140,6 +159,12 @@ public class GamePanel extends SurfaceView implements SurfaceHolder.Callback {
         if (player.getPlaying()) {
             bg.update();
             player.update();
+
+            if (player.getY() > HEIGHT) {
+                player.setHealthPoint(MAX_HEALTH_POINTS);
+                player.setPlaying(false);
+            }
+
             //thêm tên lửa vào timer
             long missileElapsed = (System.nanoTime() - missileStartTime) / 1000000;
             if (missileElapsed > (2000 - player.getScore() / 4)) {
@@ -157,6 +182,7 @@ public class GamePanel extends SurfaceView implements SurfaceHolder.Callback {
                 //reset timer
                 missileStartTime = System.nanoTime();
             }
+
             //kiem tra tat ca ten lua, check va cham va remove
             for (int i = 0; i < missiles.size(); i++) {
                 //update missile
@@ -167,7 +193,7 @@ public class GamePanel extends SurfaceView implements SurfaceHolder.Callback {
                     if (player.getHealthPoint() > 1) {
                         player.setHealthPoint(player.getHealthPoint() - 1);
                     } else {
-                        player.setHealthPoint(player.MAX_HEALTH_POINTS);
+                        player.setHealthPoint(MAX_HEALTH_POINTS);
                         player.setPlaying(false);    // end game
                     }
                     break;
@@ -179,6 +205,35 @@ public class GamePanel extends SurfaceView implements SurfaceHolder.Callback {
                 }
             }
 
+            //kiem tra tat ca enemy, check va cham va remove
+            long enemyElapsed = (System.nanoTime() - enemyStartTime) / 1000000;
+            if (enemyElapsed > (9000 - player.getScore()/9)) {
+                enemyList.add(new Enemy(BitmapFactory.decodeResource(getResources(), R.drawable.helicopter8),
+                        WIDTH + 10, (int) (rand.nextDouble() * (HEIGHT)), 96, 96, player.getScore()));
+                //reset timer
+                enemyStartTime = System.nanoTime();
+            }
+
+            for (int i = 0; i < enemyList.size(); i++) {
+                enemyList.get(i).update();
+//                healthBarEnemyList.add(new HealthBar(enemyList.get(i), 50, 10, 2, 2));
+                // check va cham
+                if (collision(enemyList.get(i), player)) {
+                    enemyList.remove(i);
+//                    healthBarEnemyList.remove(i);
+                    if (player.getHealthPoint() > 2) {
+                        player.setHealthPoint(player.getHealthPoint() - 2);
+                    } else {
+                        player.setHealthPoint(MAX_HEALTH_POINTS);
+                        player.setPlaying(false);    // end game
+                    }
+                    break;
+                }
+                if (enemyList.get(i).getX() < - 50) {
+                    enemyList.remove(i);
+                    break;
+                }
+            }
 
             //them smoke vao timer
             long elapsed = (System.nanoTime() - smokeStartTime) / 1000000;
@@ -193,10 +248,39 @@ public class GamePanel extends SurfaceView implements SurfaceHolder.Callback {
                 }
             }
 
+            for (Bullet b: bulletList) {
+                b.update();
+            }
+
+            for (int i = 0; i <  bulletList.size(); i++) {
+                if ( bulletList.get(i).getX() > getWidth()) {
+                    bulletList.remove(i);
+                    break;
+                }
+                // dan ban trung enemy
+                for (int j = 0; j < enemyList.size(); j++) {
+                    if (collision(enemyList.get(j), bulletList.get(i))) {
+                        explosion = new Explosion(BitmapFactory.decodeResource(getResources(),R.drawable.explosion), enemyList.get(j).getX() -25,
+                                enemyList.get(j).getY()-25, 100, 100, 25, 10);
+                        bulletList.remove(i);
+                        enemyList.remove(j);
+//                        if (enemyList.get(j).getHealthPoint() > 1) {
+//                            enemyList.get(j).setHealthPoint(enemyList.get(j).getHealthPoint() - 1);
+//                            bulletList.remove(i);
+//                            healthBarEnemyList.remove(j);
+//                        } else {
+//                            healthBarEnemyList.remove(j);
+//                        }
+//                        soundPool.play(sound1, 1, 1, 1, 1, 1);
+                        break;
+                    }
+                }
+            }
+            explosion.update();
         }
         else {
-//            player.resetDY();
-            player.resetDYA();
+            player.resetDY();
+//            player.resetDYA();
             if(!reset)
             {
                 newGameCreated = false;
@@ -204,7 +288,7 @@ public class GamePanel extends SurfaceView implements SurfaceHolder.Callback {
                 reset = true;
                 disappear = true;
                 explosion = new Explosion(BitmapFactory.decodeResource(getResources(),R.drawable.explosion),player.getX(),
-                        player.getY()-30, 100, 100, 25);
+                        player.getY()-30, 100, 100, 25, 10);
             }
 
             explosion.update();
@@ -222,8 +306,8 @@ public class GamePanel extends SurfaceView implements SurfaceHolder.Callback {
         missiles.clear();
         smoke.clear();
 
-//            player.resetDY();
-        player.resetDYA();
+        player.resetDY();
+//        player.resetDYA();
         player.resetScore();
         player.setY(HEIGHT/2);
 
@@ -236,7 +320,7 @@ public class GamePanel extends SurfaceView implements SurfaceHolder.Callback {
     }
 
     public boolean collision(GameObject a, GameObject b) {
-        // sử dụng React.intersects tìm giao điểm của hình chữ nhật hiện tại và hình chữ nhật được chỉ định và lưu trữ kết quả dưới dạng hình chữ nhật hiện tại.
+        // sử dụng React.intersects tìm giao điểm của hình chữ nhật hiện tại và hình chữ nhật được chỉ định và trả về kết quả
         return Rect.intersects(a.getRectangle(), b.getRectangle());
     }
 
@@ -262,6 +346,16 @@ public class GamePanel extends SurfaceView implements SurfaceHolder.Callback {
             for (Missile m : missiles) {
                 m.draw(canvas);
             }
+            for (Enemy e : enemyList) {
+                e.draw(canvas);
+            }
+
+            for (Bullet b: bulletList) {
+                b.draw(canvas);
+            }
+//            for (HealthBar h: healthBarEnemyList) {
+//                h.draw(canvas);
+//            }
 
             if(started){
                 explosion.draw(canvas);
@@ -290,13 +384,11 @@ public class GamePanel extends SurfaceView implements SurfaceHolder.Callback {
         canvas.drawBitmap(up, 55, HEIGHT - 115, paint);
 
         //
-        Paint mPaint2 = new Paint(Paint.ANTI_ALIAS_FLAG);
-        mPaint2.setColor(Color.parseColor("#d1e0de"));
-        mPaint2.setStrokeWidth(1);
-        mPaint2.setStyle(Paint.Style.STROKE);
-        float radius = 45.0f;
-        canvas.drawRect(WIDTH - 125, HEIGHT - 110, WIDTH - 75,HEIGHT - 60, mPaint2);
-//        canvas.drawCircle(WIDTH - 100, HEIGHT - 95, radius, mPaint2);
+//        Paint mPaint2 = new Paint(Paint.ANTI_ALIAS_FLAG);
+//        mPaint2.setColor(Color.parseColor("#d1e0de"));
+//        mPaint2.setStrokeWidth(1);
+//        mPaint2.setStyle(Paint.Style.STROKE);
+//        canvas.drawRect(WIDTH - 135, HEIGHT - 120, WIDTH - 65,HEIGHT - 40, mPaint2);
     }
 
     private void drawAimButton(Canvas canvas) {

@@ -5,27 +5,30 @@ import android.graphics.Color;
 import android.graphics.Paint;
 
 public class HealthBar {
-    private Player player;
-    private int width, height, margin;
+    private GameObject obj;
+    private int width, height, margin, maxHealthPoints;
     private Paint borderPaint, healthPaint;
 
-    public HealthBar(Player player, int width, int height, int margin) {
-        this.player = player;
-        this.width = width;
-        this.height = height;
-        this.margin = margin;
-        this.borderPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
+
+    public HealthBar(GameObject p, int w, int h, int m, int maxHealth) {
+        obj = p;
+        width = w;
+        height = h;
+        margin = m;
+        maxHealthPoints = maxHealth;
+        obj.setHealthPoint(maxHealth);
+        borderPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
         borderPaint.setColor(Color.parseColor("#bdf0ff"));
 
-        this.healthPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
+        healthPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
         healthPaint.setColor(Color.parseColor("#41c200"));
     }
 
     public void draw(Canvas canvas) {
-        float x = (float) player.getX();
-        float y = (float) player.getY();
+        float x = (float) obj.getX();
+        float y = (float) obj.getY();
         float distanceToPlayer = 30;
-        float healthPointPercentage = (float) player.getHealthPoint()/player.MAX_HEALTH_POINTS;
+        float healthPointPercentage = (float) obj.getHealthPoint()/maxHealthPoints;
 
         // border
         float borderLeft, borderTop, borderRight, borderBottom;
@@ -44,4 +47,6 @@ public class HealthBar {
         healthTop = healthBottom - heathHeight;
         canvas.drawRect(healthLeft, healthTop, healthRight, borderBottom, healthPaint);
     }
+
+
 }

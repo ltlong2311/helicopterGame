@@ -8,6 +8,7 @@ public abstract class GameObject {
     protected int dx;
     protected int width;
     protected int height;
+    private int healthPoints;
 
     public void setX(int x)
     {
@@ -37,5 +38,10 @@ public abstract class GameObject {
     {
         return new Rect(x, y, x+width, y+height);
     }
-
+    public void setHealthPoint(int healthPoints) {
+        this.healthPoints = healthPoints;
+    }
+    public int getHealthPoint() {
+        return healthPoints;
+    }
 }

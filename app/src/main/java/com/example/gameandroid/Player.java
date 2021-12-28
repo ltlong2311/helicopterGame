@@ -6,7 +6,7 @@ import android.graphics.Canvas;
 
 
 public class Player extends GameObject {
-    public static final int MAX_HEALTH_POINTS = 5;
+//    public static final int MAX_HEALTH_POINTS = 9;
     private Bitmap spritesheet;
     private int score;
     private double dya;
@@ -14,7 +14,7 @@ public class Player extends GameObject {
     private boolean playing;
     private Animation animation = new Animation();
     private long startTime;
-    private int healthPoints = MAX_HEALTH_POINTS;
+//    private int healthPoints = MAX_HEALTH_POINTS;
 
     public Player(Bitmap res, int w, int h, int numFrames) {
         x = 100;
@@ -50,13 +50,17 @@ public class Player extends GameObject {
         animation.update();
 
         if (up) {
-            dy = (int)(dya -= 0.8);
-//            dy -= 5;
+            if (y > 0){
+                dy -= 3;
+            } else {
+                dy = 0;
+            }
         } else {
-            dy = (int)(dya += 0.8);
-//            dy += 5;
+//            dy = (int)(dya += 0.8);
+            dy += 1;
         }
 
+        // khi cham man hinh thoi gian dai (an giu man hinh), gioi han dy khong tang qua lon
         if (dy > 14) dy = 14;
         if (dy < -14) dy = -14;
 
@@ -76,23 +80,23 @@ public class Player extends GameObject {
         return playing;
     }
 
-    public int getHealthPoint() {
-        return healthPoints;
-    }
-
-    public void setHealthPoint(int healthPoints) {
-        // Only allow positive values
-        if (healthPoints >= 0)
-            this.healthPoints = healthPoints;
-    }
+//    public int getHealthPoint() {
+//        return healthPoints;
+//    }
+//
+//    public void setHealthPoint(int healthPoints) {
+//        // Only allow positive values
+//        if (healthPoints >= 0)
+//            this.healthPoints = healthPoints;
+//    }
 
     public void setPlaying(boolean b) {
         playing = b;
     }
 
-    public void resetDYA() {
-        dya = 0;
-    }
+//    public void resetDYA() {
+//        dya = 0;
+//    }
     public void resetDY() {
         dy = 0;
     }
