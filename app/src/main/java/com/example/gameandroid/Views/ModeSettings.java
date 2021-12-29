@@ -1,4 +1,4 @@
-package com.example.gameandroid;
+package com.example.gameandroid.Views;
 
 import androidx.appcompat.app.AppCompatActivity;
 
@@ -6,8 +6,9 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.view.Window;
 import android.view.WindowManager;
-import android.widget.ImageView;
 import android.widget.TextView;
+
+import com.example.gameandroid.R;
 
 public class ModeSettings extends AppCompatActivity {
 

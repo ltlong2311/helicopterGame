@@ -1,4 +1,4 @@
-package com.example.gameandroid;
+package com.example.gameandroid.Views;
 
 import androidx.appcompat.app.AppCompatActivity;
 
@@ -10,7 +10,8 @@ import android.view.Window;
 import android.view.WindowManager;
 import android.widget.CheckBox;
 import android.widget.ImageView;
-import android.widget.TextView;
+
+import com.example.gameandroid.R;
 
 public class Options extends AppCompatActivity {
     int gameMode;

@@ -1,25 +1,27 @@
-package com.example.gameandroid;
+package com.example.gameandroid.GameObject;
 
 
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
 
+import com.example.gameandroid.GameObject.GameObject;
+
 import java.util.Random;
 
 public class Enemy extends GameObject {
     private Bitmap image;
-    private int score;
-    private int speed;
+    private int score, speed, healthPoints, maxHealthPoints;
     private Random rand = new Random();
 
-    public Enemy(Bitmap res, int x, int y, int w, int h, int s) {
+    public Enemy(Bitmap res, int x, int y, int w, int h, int s, int maxHealth) {
         super.x = x;
         super.y = y;
         width = w;
         height = h;
         score = s;
-
-        speed = 3 + (int) (rand.nextDouble() * score / 50);
+        maxHealthPoints = maxHealth;
+        healthPoints = maxHealth;
+        speed = 5 + (int) (rand.nextDouble() * score / 50);
 
         // speed
         if (speed > 40) speed = 40;
@@ -32,8 +34,21 @@ public class Enemy extends GameObject {
 
     public void draw(Canvas canvas) {
         canvas.drawBitmap(image, x, y, null);
-
     }
+
+    public int getMaxHealthPoints() {
+        return maxHealthPoints;
+    }
+
+    public int getHealthPoint() {
+        return healthPoints;
+    }
+
+    public void setHealthPoint(int healthPoints) {
+        if (healthPoints >= 0)
+            this.healthPoints = healthPoints;
+    }
+
 
     @Override
     public int getWidth() {

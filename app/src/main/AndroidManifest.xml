@@ -11,16 +11,16 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.GameAndroid"
         tools:ignore="AllowBackup">
-        <activity android:name=".Options"
+        <activity android:name=".Views.Options"
             android:screenOrientation="landscape">
         </activity>
-        <activity android:name=".ModeSettings" />
-        <activity android:name=".SoundSettings" />
+        <activity android:name=".Views.ModeSettings" />
+        <activity android:name=".Views.SoundSettings" />
         <activity
-            android:name=".Game"
+            android:name=".Views.Game"
             android:screenOrientation="landscape" />
         <activity
-            android:name=".Home"
+            android:name=".Views.Home"
             android:screenOrientation="landscape">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />

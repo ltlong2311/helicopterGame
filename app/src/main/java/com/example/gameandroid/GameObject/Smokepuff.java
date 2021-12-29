@@ -1,10 +1,12 @@
-package com.example.gameandroid;
+package com.example.gameandroid.GameObject;
 
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
 
-public class Smokepuff extends GameObject{
+import com.example.gameandroid.GameObject.GameObject;
+
+public class Smokepuff extends GameObject {
     public int r;
     public Smokepuff(int x, int y)
     {

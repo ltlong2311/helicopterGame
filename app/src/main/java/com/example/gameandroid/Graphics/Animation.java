@@ -1,4 +1,4 @@
-package com.example.gameandroid;
+package com.example.gameandroid.Graphics;
 
 import android.graphics.Bitmap;
 

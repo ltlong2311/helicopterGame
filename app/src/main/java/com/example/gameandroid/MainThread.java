@@ -3,6 +3,8 @@ package com.example.gameandroid;
 import android.graphics.Canvas;
 import android.view.SurfaceHolder;
 
+import com.example.gameandroid.Panel.GamePanel;
+
 public class MainThread extends Thread {
     private int FPS = 30;
     private double averageFPS;

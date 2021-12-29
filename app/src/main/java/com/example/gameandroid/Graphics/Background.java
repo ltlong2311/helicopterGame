@@ -1,7 +1,9 @@
-package com.example.gameandroid;
+package com.example.gameandroid.Graphics;
 
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
+
+import com.example.gameandroid.Panel.GamePanel;
 
 public class Background {
     private Bitmap image;

@@ -1,24 +1,27 @@
-package com.example.gameandroid;
+package com.example.gameandroid.GameObject;
 
 
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
 
+import com.example.gameandroid.Graphics.Animation;
+import com.example.gameandroid.Panel.GamePanel;
+
 
 public class Player extends GameObject {
-//    public static final int MAX_HEALTH_POINTS = 9;
+    public static final int MAX_HEALTH_POINTS = 9;
     private Bitmap spritesheet;
     private int score;
-    private double dya;
-    private boolean up;
+    private boolean up, down, left, right;
     private boolean playing;
     private Animation animation = new Animation();
     private long startTime;
-//    private int healthPoints = MAX_HEALTH_POINTS;
+    private int healthPoints = MAX_HEALTH_POINTS;
 
     public Player(Bitmap res, int w, int h, int numFrames) {
-        x = 100;
+        x = 90;
         y = GamePanel.HEIGHT / 2;
+        dx = 0;
         dy = 0;
         score = 0;
         height = h;
@@ -41,31 +44,65 @@ public class Player extends GameObject {
         up = b;
     }
 
+    public void setDown(boolean b) {
+        down = b;
+    }
+
+    public void setLeft(boolean b) {
+        left = b;
+    }
+
+    public void setRight(boolean b) {
+        right = b;
+    }
+
     public void update() {
         long elapsed = (System.nanoTime() - startTime) / 1000000;
-        if (elapsed > 100) {
+        if (elapsed > 2000) {
             score++;
             startTime = System.nanoTime();
         }
         animation.update();
 
         if (up) {
-            if (y > 0){
+            if (y > 0) {
                 dy -= 3;
             } else {
                 dy = 0;
             }
-        } else {
-//            dy = (int)(dya += 0.8);
+        } else if (right) {
+            if (x < GamePanel.WIDTH / 2 - width) {
+                dx += 3;
+            } else {
+                dx = 0;
+            }
+        }
+        else if (left) {
+            if (x > 0) {
+                dx -= 3;
+            } else {
+                dx = 0;
+            }
+        }
+        else {
+            // dy = (int)(dya += 0.8);
             dy += 1;
         }
+        if (down) { dy += 3; }
 
-        // khi cham man hinh thoi gian dai (an giu man hinh), gioi han dy khong tang qua lon
-        if (dy > 14) dy = 14;
-        if (dy < -14) dy = -14;
 
         y += dy * 2;
+        x += dx * 2;
+
+
+        // gioi han dx, dy khi an giu nut dieu khien
+        if (dy > 15) dy = 15;
+        if (dy < -15) dy = -15;
+        if (dx > 15) dx = 15;
+        if (dx < -15) dx = -15;
+
         dy = 0;
+        dx = 0;
     }
 
     public void draw(Canvas canvas) {
@@ -76,30 +113,35 @@ public class Player extends GameObject {
         return score;
     }
 
+    public void setScore(int score) {
+        this.score = score;
+    }
+
     public boolean getPlaying() {
         return playing;
     }
 
-//    public int getHealthPoint() {
-//        return healthPoints;
-//    }
-//
-//    public void setHealthPoint(int healthPoints) {
-//        // Only allow positive values
-//        if (healthPoints >= 0)
-//            this.healthPoints = healthPoints;
-//    }
+    public int getHealthPoint() {
+        return healthPoints;
+    }
+
+    public void setHealthPoint(int healthPoints) {
+        if (healthPoints >= 0)
+            this.healthPoints = healthPoints;
+    }
 
     public void setPlaying(boolean b) {
         playing = b;
     }
 
-//    public void resetDYA() {
-//        dya = 0;
-//    }
     public void resetDY() {
         dy = 0;
     }
+
+    public void resetDX() {
+        dx = 0;
+    }
+
 
     public void resetScore() {
         score = 0;

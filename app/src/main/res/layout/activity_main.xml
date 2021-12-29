@@ -7,7 +7,7 @@
     android:background="@drawable/bg10"
     android:gravity="center"
     android:orientation="vertical"
-    tools:context=".Home">
+    tools:context=".Views.Home">
 
     <LinearLayout
         android:layout_width="match_parent"
