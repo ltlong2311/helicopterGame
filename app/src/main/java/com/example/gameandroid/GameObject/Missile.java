@@ -2,6 +2,7 @@ package com.example.gameandroid.GameObject;
 
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
+import android.graphics.Paint;
 
 import com.example.gameandroid.Graphics.Animation;
 
@@ -13,6 +14,7 @@ public class Missile extends GameObject {
     private Random rand = new Random();
     private Animation animation = new Animation();
     private Bitmap spritesheet;
+    private Paint missileStyle;
 
     public Missile(Bitmap res, int x, int y, int w, int h, int s, int numFrames)
     {
@@ -22,7 +24,7 @@ public class Missile extends GameObject {
         height = h;
         score = s;
 
-        speed = 7 + (int) (rand.nextDouble()*score/30);
+        speed = 9 + (int) (rand.nextDouble()*score/3);
 
         //cap missile speed
         if(speed>40)speed = 40;
@@ -39,6 +41,8 @@ public class Missile extends GameObject {
         animation.setFrames(image);
         animation.setDelay(100-speed);
 
+        missileStyle = new Paint(Paint.ANTI_ALIAS_FLAG);
+
     }
     public void update()
     {
@@ -48,7 +52,7 @@ public class Missile extends GameObject {
     public void draw(Canvas canvas)
     {
         try{
-            canvas.drawBitmap(animation.getImage(),x,y,null);
+            canvas.drawBitmap(animation.getImage(),x,y,missileStyle);
         }catch(Exception e){}
     }
 

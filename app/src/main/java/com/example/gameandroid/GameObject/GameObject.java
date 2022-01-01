@@ -38,10 +38,4 @@ public abstract class GameObject {
     {
         return new Rect(x, y, x+width, y+height);
     }
-    public void setHealthPoint(int healthPoints) {
-        this.healthPoints = healthPoints;
-    }
-    public int getHealthPoint() {
-        return healthPoints;
-    }
 }

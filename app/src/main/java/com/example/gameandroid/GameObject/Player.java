@@ -3,6 +3,7 @@ package com.example.gameandroid.GameObject;
 
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
+import android.graphics.Paint;
 
 import com.example.gameandroid.Graphics.Animation;
 import com.example.gameandroid.Panel.GamePanel;
@@ -17,6 +18,7 @@ public class Player extends GameObject {
     private Animation animation = new Animation();
     private long startTime;
     private int healthPoints = MAX_HEALTH_POINTS;
+    private Paint playerStyle;
 
     public Player(Bitmap res, int w, int h, int numFrames) {
         x = 90;
@@ -38,6 +40,7 @@ public class Player extends GameObject {
         animation.setDelay(10);
         startTime = System.nanoTime();
 
+        playerStyle = new Paint(Paint.ANTI_ALIAS_FLAG);
     }
 
     public void setUp(boolean b) {
@@ -90,13 +93,11 @@ public class Player extends GameObject {
         }
         if (down) { dy += 3; }
 
-
         y += dy * 2;
         x += dx * 2;
 
-
         // gioi han dx, dy khi an giu nut dieu khien
-        if (dy > 15) dy = 15;
+        if (dy > 20) dy = 20;
         if (dy < -15) dy = -15;
         if (dx > 15) dx = 15;
         if (dx < -15) dx = -15;
@@ -106,7 +107,7 @@ public class Player extends GameObject {
     }
 
     public void draw(Canvas canvas) {
-        canvas.drawBitmap(animation.getImage(), x, y, null);
+        canvas.drawBitmap(animation.getImage(), x, y,  playerStyle);
     }
 
     public int getScore() {

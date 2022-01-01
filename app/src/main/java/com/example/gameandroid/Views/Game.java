@@ -11,19 +11,22 @@ import android.view.WindowManager;
 
 import com.example.gameandroid.Panel.GamePanel;
 import com.example.gameandroid.R;
+import com.example.gameandroid.Sound.SoundPlayer;
 
 public class Game extends AppCompatActivity {
-    Boolean music, sound;
+    Boolean music;
     MediaPlayer gameMusic;
+    SoundPlayer soundPlayer;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         requestWindowFeature(Window.FEATURE_NO_TITLE);
         getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN);
         setContentView(new GamePanel(this));
+        soundPlayer = new SoundPlayer(this);
         SharedPreferences preferences = this.getApplicationContext().getSharedPreferences("gameSettings", Context.MODE_PRIVATE);
         music = preferences.getBoolean("music", true);
-        gameMusic = MediaPlayer.create(this, R.raw.far_away);
+        gameMusic = MediaPlayer.create(this, R.raw.main_war);
         if (!gameMusic.isPlaying() && music)
         {
             gameMusic.start();
@@ -34,12 +37,14 @@ public class Game extends AppCompatActivity {
     @Override
     protected void onPause() {
         gameMusic.pause();
+        soundPlayer.setSoundPause();
         super.onPause();
     }
 
     @Override
     protected void onStop() {
         gameMusic.stop();
+        soundPlayer.setSoundStop();
         super.onStop();
     }
 }
