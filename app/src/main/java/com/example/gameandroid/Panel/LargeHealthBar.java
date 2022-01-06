@@ -21,12 +21,12 @@ public class LargeHealthBar {
     public LargeHealthBar(Player p, HealthStatus bar, int m) {
         player = p;
         healthBarFrame = bar;
-        width = 180;
+        width = 225;
         height = 21;
         margin = m;
 
         healthPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
-        healthPaint.setColor(Color.parseColor("#f05b6a"));
+        healthPaint.setColor(Color.parseColor("#c4747c"));
     }
 
     public void draw(Canvas canvas) {
@@ -38,7 +38,7 @@ public class LargeHealthBar {
         float healthLeft, healthTop, healthRight, healthBottom, healthWidth, heathHeight;
         healthWidth = width;
         heathHeight = height;
-        healthLeft = x + 55;
+        healthLeft = x + 45;
         healthRight = healthLeft + healthWidth*healthPointPercentage;
         healthBottom = y + 26;
         healthTop = healthBottom - heathHeight;
@@ -46,7 +46,7 @@ public class LargeHealthBar {
 
         Paint style = new Paint(Paint.ANTI_ALIAS_FLAG);
         style.setTextSize(10);
-        style.setColor(Color.parseColor("#f1f1f1"));
+        style.setColor(Color.parseColor("#ebebeb"));
 //        style.setTypeface(Typeface.createFromAsset(,"SourceSansPro-Bold.otf"));
         canvas.drawText(player.getHealthPoint()*100+ "/" + player.MAX_HEALTH_POINTS*100, x + 60,
                 (healthBottom - healthTop)/2+ 18, style);

@@ -2,6 +2,7 @@ package com.example.gameandroid.Panel;
 
 import android.annotation.SuppressLint;
 import android.content.Context;
+import android.content.SharedPreferences;
 import android.content.res.Resources;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
@@ -28,7 +29,9 @@ import com.example.gameandroid.Graphics.HealthStatus;
 import com.example.gameandroid.MainThread;
 import com.example.gameandroid.GameObject.Player;
 import com.example.gameandroid.R;
+import com.example.gameandroid.Sound.MusicPlayer;
 import com.example.gameandroid.Sound.SoundPlayer;
+import com.example.gameandroid.Views.Home;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -40,7 +43,6 @@ public class GamePanel extends SurfaceView implements SurfaceHolder.Callback {
     public static final int WIDTH = 856;
     public static final int HEIGHT = 480;
     public static final int MOVESPEED = -5;
-//    public static final int MAX_HEALTH_POINTS = 9;
     private long smokeStartTime;
     private long missileStartTime;
     private long enemyStartTime, enemyLv2StartTime, enemyLv3StartTime;
@@ -67,9 +69,12 @@ public class GamePanel extends SurfaceView implements SurfaceHolder.Callback {
     private boolean reset;
     private boolean disappear;
     private boolean started;
-    private int best = 0;
+    private int best;
+    private int gameDifficulty;
     private SoundPlayer sound;
+    MusicPlayer musicPlayer;
     Bitmap enemyType, enemyLv2Type, enemyLv3Type;
+    SharedPreferences preferences;
 
     public GamePanel(Context context) {
         super(context);
@@ -80,9 +85,10 @@ public class GamePanel extends SurfaceView implements SurfaceHolder.Callback {
 
     @Override
     public void surfaceCreated(@NonNull SurfaceHolder holder) {
+        preferences = getContext().getApplicationContext().getSharedPreferences(Home.GAME_SETTINGS, Context.MODE_PRIVATE);
         bg = new Background(BitmapFactory.decodeResource(getResources(), R.drawable.bg4));
         player = new Player(BitmapFactory.decodeResource(getResources(), R.drawable.helicopter), 65, 25, 3);
-        healthStatus = new HealthStatus(BitmapFactory.decodeResource(getResources(),R.drawable.hpbar_emty_291), 15, 10);
+        healthStatus = new HealthStatus(BitmapFactory.decodeResource(getResources(),R.drawable.hpbar_emty_9), 15, 10);
         largeHealthBar = new LargeHealthBar(player, healthStatus, 1);
         healthBar = new HealthBar(player, 65, 12, 2);
         smoke = new ArrayList<Smokepuff>();
@@ -94,15 +100,18 @@ public class GamePanel extends SurfaceView implements SurfaceHolder.Callback {
         smokeStartTime = System.nanoTime();
         missileStartTime = System.nanoTime();
         thread = new MainThread(getHolder(), this);
-        bg.setVector(-5);
+        int gameMode = preferences.getInt("mode", 1);
+        gameDifficulty = - (4 + gameMode);
+        best = preferences.getInt("highestScore", 1);
+        bg.setVector(gameDifficulty);
         sound = new SoundPlayer(getContext());
+        musicPlayer = new MusicPlayer(getContext());
         thread.setRunning(true);
         thread.start();
     }
 
     @Override
     public void surfaceChanged(SurfaceHolder holder, int format, int width, int height) {
-
     }
 
     @Override
@@ -119,6 +128,8 @@ public class GamePanel extends SurfaceView implements SurfaceHolder.Callback {
                 e.printStackTrace();
             }
         }
+        musicPlayer.stopGameMusic();
+        musicPlayer.stopInGameMusic();
     }
 
     @Override
@@ -196,6 +207,8 @@ public class GamePanel extends SurfaceView implements SurfaceHolder.Callback {
         if (player.getPlaying()) {
             bg.update();
             player.update();
+            musicPlayer.pauseGameMusic();
+            musicPlayer.playInGameMusic();
 
             if (player.getY() > HEIGHT) {
                 player.setHealthPoint(player.MAX_HEALTH_POINTS);
@@ -264,7 +277,7 @@ public class GamePanel extends SurfaceView implements SurfaceHolder.Callback {
                         break;
                 }
                 enemyList.add(new Enemy(enemyType,
-                        WIDTH + 10, 60 + (int) (rand.nextDouble() * (HEIGHT - 160)), 60, 60, player.getScore(), 2, 7));   // min - ran*(max-min)
+                        WIDTH + 10, 60 + (int) (rand.nextDouble() * (HEIGHT - 160)), 60, 60, player.getScore(), 2, 7, gameDifficulty));   // min - ran*(max-min)
                 enemyStartTime = System.nanoTime();
             }
 
@@ -283,7 +296,7 @@ public class GamePanel extends SurfaceView implements SurfaceHolder.Callback {
                         break;
                 }
                 enemyList.add(new Enemy(enemyLv2Type,
-                        WIDTH + 10, 65 + (int) ( rand.nextDouble() * (HEIGHT - 315)), 65, 65, player.getScore(), 1, 12));
+                        WIDTH + 10, 65 + (int) ( rand.nextDouble() * (HEIGHT - 315)), 65, 65, player.getScore(), 1, 12, gameDifficulty));
                 enemyLv2StartTime = System.nanoTime();
             }
 
@@ -299,7 +312,7 @@ public class GamePanel extends SurfaceView implements SurfaceHolder.Callback {
                         break;
                 }
                 enemyList.add(new Enemy(enemyLv3Type,
-                        WIDTH + 10, 100 + (int) (rand.nextDouble() * (HEIGHT - 200)), 80, 80, player.getScore(), 5, 5));
+                        WIDTH + 10, 100 + (int) (rand.nextDouble() * (HEIGHT - 200)), 80, 80, player.getScore(), 5, 5, gameDifficulty));
                 enemyLv3StartTime = System.nanoTime();
             }
 
@@ -310,6 +323,7 @@ public class GamePanel extends SurfaceView implements SurfaceHolder.Callback {
                 if (collision(enemyList.get(i), player)) {
                     explosion = new Explosion(BitmapFactory.decodeResource(getResources(),R.drawable.explosion), enemyList.get(i).getX() -25,
                             enemyList.get(i).getY()-25, 100, 100, 25, 2);
+                    sound.playExplosionSound();
                     if (player.getHealthPoint() > enemyList.get(i).getHealthPoint()) {
                         player.setHealthPoint(player.getHealthPoint() - enemyList.get(i).getHealthPoint());
                         enemyList.get(i).setHealthPoint(0);
@@ -362,6 +376,7 @@ public class GamePanel extends SurfaceView implements SurfaceHolder.Callback {
                             player.setScore(player.getScore() + 5);
                             explosion = new Explosion(BitmapFactory.decodeResource(getResources(),R.drawable.explosion), enemyList.get(j).getX() -25,
                                 enemyList.get(j).getY()-25, 100, 100, 25, 10);
+                            sound.playExplosionSound2();
                             enemyList.get(j).setHealthPoint(enemyList.get(j).getHealthPoint() - 1);
                             bulletList.remove(i);
                             enemyList.remove(j);
@@ -376,6 +391,8 @@ public class GamePanel extends SurfaceView implements SurfaceHolder.Callback {
         else {
             player.resetDY();
             player.resetDX();
+            musicPlayer.playGameMusic();
+            musicPlayer.pauseInGameMusic();
             if(!reset)
             {
                 newGameCreated = false;
@@ -404,14 +421,16 @@ public class GamePanel extends SurfaceView implements SurfaceHolder.Callback {
         healthBarEnemyList.clear();
         player.resetDY();
         player.resetDX();
-        player.resetScore();
-        player.setY(HEIGHT/2);
-        player.setX(90);
         if(player.getScore() > best)
         {
             best = player.getScore();
+            SharedPreferences.Editor editor = preferences.edit();
+            editor.putInt("highestScore", best);
+            editor.apply();
         }
-
+        player.resetScore();
+        player.setY(HEIGHT/2);
+        player.setX(90);
         newGameCreated = true;
     }
 
@@ -436,8 +455,6 @@ public class GamePanel extends SurfaceView implements SurfaceHolder.Callback {
                 healthBar.draw(canvas);
                 largeHealthBar.draw(canvas);
                 healthStatus.draw(canvas);
-                drawAimButton(canvas);
-                drawControllerButton(canvas);
             }
 //            for (Smokepuff sp : smoke) {
 //                sp.draw(canvas);
@@ -448,18 +465,22 @@ public class GamePanel extends SurfaceView implements SurfaceHolder.Callback {
             for (Enemy e : enemyList) {
                 e.draw(canvas);
             }
-
-            for (Bullet b: bulletList) {
-                b.draw(canvas);
-            }
             for (EnemyHealthBar h: healthBarEnemyList) {
                 if(h.getEnemyHealth() > 0) {
                     h.draw(canvas);
                 }
             }
 
+            for (Bullet b: bulletList) {
+                b.draw(canvas);
+            }
             if(started){
                 explosion.draw(canvas);
+            }
+
+            if(!disappear) {
+                drawAimButton(canvas);
+                drawControllerButton(canvas);
             }
             drawText(canvas);
             canvas.restoreToCount(savedState);
@@ -553,17 +574,22 @@ public class GamePanel extends SurfaceView implements SurfaceHolder.Callback {
         {
             Paint style = new Paint(Paint.ANTI_ALIAS_FLAG);
             style.setTextSize(30);
-            style.setColor(Color.parseColor("#01466e"));
-            style.setTypeface(Typeface.createFromAsset(getContext().getAssets(),"SourceSansPro-Bold.otf"));
-            canvas.drawText("PRESS TO START", WIDTH/2-50, HEIGHT/2, style);
+            style.setTypeface(Typeface.createFromAsset(getContext().getAssets(),"SourceSansPro-Black.otf"));
+            style.setColor(Color.parseColor("#ebd100"));
+            canvas.drawText("BEST: "+ best, WIDTH/2-50, HEIGHT/2 - 30, style);
 
             Paint style2 = new Paint(Paint.ANTI_ALIAS_FLAG);
-            style2.setTextSize(15);
-            style2.setColor(Color.parseColor("#283000"));
-            style2.setTypeface(Typeface.createFromAsset(getContext().getAssets(),"SourceSansPro-Regular.otf"));
-//            canvas.drawText("BEST: "+ best, WIDTH/2-50, HEIGHT/2 + 45, style2);
-            canvas.drawText("Press and hold the control button to move", WIDTH/2-50, HEIGHT/2 + 25, style2);
-            canvas.drawText("Press the fire button to destroy the enemy", WIDTH/2-50, HEIGHT/2 + 45, style2);
+            style2.setTextSize(25);
+            style2.setTypeface(Typeface.createFromAsset(getContext().getAssets(),"SourceSansPro-Bold.otf"));
+            style2.setColor(Color.parseColor("#01466e"));
+            canvas.drawText("PRESS TO START", WIDTH/2-50, HEIGHT/2, style2);
+
+            Paint style3 = new Paint(Paint.ANTI_ALIAS_FLAG);
+            style3.setTextSize(16);
+            style3.setColor(Color.parseColor("#283000"));
+            style3.setTypeface(Typeface.createFromAsset(getContext().getAssets(),"SourceSansPro-Regular.otf"));
+            canvas.drawText("Press and hold the control button to move", WIDTH/2-50, HEIGHT/2 + 25, style3);
+            canvas.drawText("Press the fire button to destroy the enemy", WIDTH/2-50, HEIGHT/2 + 45, style3);
         }
     }
 }

@@ -8,6 +8,7 @@ import android.media.SoundPool;
 import android.os.Build;
 
 import com.example.gameandroid.R;
+import com.example.gameandroid.Views.Home;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -22,9 +23,8 @@ public class SoundPlayer {
     List<Integer> streams = new ArrayList<Integer>();
 
     public SoundPlayer(Context context) {
-        preferences = context.getSharedPreferences("gameSettings", Context.MODE_PRIVATE);
+        preferences = context.getSharedPreferences(Home.GAME_SETTINGS, Context.MODE_PRIVATE);
         sound = preferences.getBoolean("sound", true);
-
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
             AudioAttributes audioAttributes = new AudioAttributes.Builder()
@@ -42,7 +42,6 @@ public class SoundPlayer {
         explosionSound = soundPool.load(context, R.raw.explosion, 1);
         explosionSound2 = soundPool.load(context, R.raw.tieng_dan_ban_vao_tuong, 1);
         bulletSound = soundPool.load(context, R.raw.tieng_sung, 1);
-        intro = soundPool.load(context, R.raw.intro, 1);
     }
 
     public void playExplosionSound() {
@@ -59,9 +58,10 @@ public class SoundPlayer {
         }
     }
 
-    public void playIntroSound() {
+    public void playExplosionSound2() {
         if (sound) {
-            soundPool.play(intro, 1.0f, 1.0f, 1, 0, 1);
+            int streamID = soundPool.play(explosionSound2, 1.0f, 1.0f, 1, 0, 1);
+            streams.add(streamID);
         }
     }
 

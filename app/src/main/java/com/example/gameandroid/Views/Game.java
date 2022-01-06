@@ -11,12 +11,13 @@ import android.view.WindowManager;
 
 import com.example.gameandroid.Panel.GamePanel;
 import com.example.gameandroid.R;
+import com.example.gameandroid.Sound.MusicPlayer;
 import com.example.gameandroid.Sound.SoundPlayer;
 
 public class Game extends AppCompatActivity {
-    Boolean music;
-    MediaPlayer gameMusic;
+    MusicPlayer musicPlayer;
     SoundPlayer soundPlayer;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -24,27 +25,27 @@ public class Game extends AppCompatActivity {
         getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN);
         setContentView(new GamePanel(this));
         soundPlayer = new SoundPlayer(this);
-        SharedPreferences preferences = this.getApplicationContext().getSharedPreferences("gameSettings", Context.MODE_PRIVATE);
-        music = preferences.getBoolean("music", true);
-        gameMusic = MediaPlayer.create(this, R.raw.main_war);
-        if (!gameMusic.isPlaying() && music)
-        {
-            gameMusic.start();
-            gameMusic.setLooping(true);
-        }
+        musicPlayer = new MusicPlayer(this);
     }
 
     @Override
     protected void onPause() {
-        gameMusic.pause();
         soundPlayer.setSoundPause();
+        musicPlayer.pauseInGameMusic();
+        musicPlayer.pauseGameMusic();
         super.onPause();
     }
 
     @Override
+    protected void onResume() {
+        super.onResume();
+    }
+
+    @Override
     protected void onStop() {
-        gameMusic.stop();
         soundPlayer.setSoundStop();
+        musicPlayer.stopInGameMusic();
+        musicPlayer.stopGameMusic();
         super.onStop();
     }
 }

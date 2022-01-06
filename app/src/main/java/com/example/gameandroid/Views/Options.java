@@ -12,12 +12,17 @@ import android.widget.CheckBox;
 import android.widget.ImageView;
 
 import com.example.gameandroid.R;
+import com.example.gameandroid.Sound.MusicPlayer;
+import com.example.gameandroid.Sound.SoundPlayer;
 
 public class Options extends AppCompatActivity {
     int gameMode;
     Boolean music, sound;
     ImageView btnSave, btnMode, btnSound;
     CheckBox changeSound, changeMusic;
+    MusicPlayer musicPlayer;
+    SoundPlayer soundPlayer;
+    private boolean flag = true;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -27,13 +32,19 @@ public class Options extends AppCompatActivity {
         setContentView(R.layout.activity_options);
 
         getViews();
-        SharedPreferences preferences = this.getApplicationContext().getSharedPreferences("gameSettings", Context.MODE_PRIVATE);
+        SharedPreferences preferences = this.getApplicationContext().getSharedPreferences(Home.GAME_SETTINGS, Context.MODE_PRIVATE);
         SharedPreferences.Editor editor = preferences.edit();
         gameMode = preferences.getInt("mode", 1);
         music = preferences.getBoolean("music", true);
+        System.out.println("music: "+ music);
         sound = preferences.getBoolean("sound", true);
 
-
+        if (flag) {
+            musicPlayer = new MusicPlayer(this);
+            flag = false;
+        }
+        musicPlayer.playOptionMusic();
+        soundPlayer = new SoundPlayer(this);
         setGameMode();
         setChangeSound();
         setChangeMusic();
@@ -49,29 +60,23 @@ public class Options extends AppCompatActivity {
 
         changeSound.setOnClickListener(v -> {
             sound = !sound;
-            System.out.println("music: " + music);
             setChangeSound();
         });
 
         changeMusic.setOnClickListener(v -> {
             music = !music;
-            System.out.println("music: " + music);
             setChangeMusic();
+            System.out.println("music2: "+ music);
         });
 
         btnSave.setOnClickListener(v -> {
             editor.putInt("mode", gameMode);
-            editor.putBoolean("music", music);
             editor.putBoolean("sound", sound);
+            editor.putBoolean("music", music);
+            System.out.println("music3: "+ music);
             editor.apply();
-            back();
+            super.onBackPressed();
         });
-
-    }
-
-    private void back() {
-        Intent myIntent = new Intent(Options.this, Home.class);
-        this.startActivity(myIntent);
     }
 
     private void getViews() {
@@ -118,5 +123,13 @@ public class Options extends AppCompatActivity {
         }
     }
 
+    @Override
+    protected void onStop() {
+        if (!flag) {
+            musicPlayer.stopOptionMusic();
+            flag = true;
+        }
+        super.onStop();
+    }
 
 }

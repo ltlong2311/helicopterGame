@@ -15,7 +15,7 @@ public class Enemy extends GameObject {
     private Random rand = new Random();
     private Paint enemyStyle;
 
-    public Enemy(Bitmap res, int x, int y, int w, int h, int s, int maxHealth, int baseSpeed) {
+    public Enemy(Bitmap res, int x, int y, int w, int h, int s, int maxHealth, int baseSpeed, int gameMode) {
         super.x = x;
         super.y = y;
         width = w;

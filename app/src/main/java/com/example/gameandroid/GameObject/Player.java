@@ -69,7 +69,7 @@ public class Player extends GameObject {
 
         if (up) {
             if (y > 0) {
-                dy -= 3;
+                dy -= 4;
             } else {
                 dy = 0;
             }
@@ -79,19 +79,19 @@ public class Player extends GameObject {
             } else {
                 dx = 0;
             }
-        }
-        else if (left) {
+        } else if (left) {
             if (x > 0) {
                 dx -= 3;
             } else {
                 dx = 0;
             }
-        }
-        else {
+        } else {
             // dy = (int)(dya += 0.8);
             dy += 1;
         }
-        if (down) { dy += 3; }
+        if (down) {
+            dy += 3;
+        }
 
         y += dy * 2;
         x += dx * 2;
@@ -107,7 +107,7 @@ public class Player extends GameObject {
     }
 
     public void draw(Canvas canvas) {
-        canvas.drawBitmap(animation.getImage(), x, y,  playerStyle);
+        canvas.drawBitmap(animation.getImage(), x, y, playerStyle);
     }
 
     public int getScore() {
