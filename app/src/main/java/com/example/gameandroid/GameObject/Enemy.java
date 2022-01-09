@@ -1,6 +1,7 @@
 package com.example.gameandroid.GameObject;
 
 
+import android.content.SharedPreferences;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.Paint;
@@ -23,10 +24,17 @@ public class Enemy extends GameObject {
         score = s;
         maxHealthPoints = maxHealth;
         healthPoints = maxHealth;
-        speed = baseSpeed + (int) (rand.nextDouble() * score /5);
-
+        speed = baseSpeed + (gameMode -1) + (int) (rand.nextDouble() * gameMode * score /5);
         // speed
-        if (speed > 35) speed = 35;
+        if(gameMode == 1 && speed > 30){
+            speed = 30;
+        }
+        if (gameMode == 2 && speed > 35){
+            speed = 35;
+        }
+        if (gameMode == 3 && speed > 40){
+            speed = 40;
+        }
         image = res;
 
         enemyStyle = new Paint(Paint.ANTI_ALIAS_FLAG);
@@ -52,11 +60,8 @@ public class Enemy extends GameObject {
         if (healthPoints >= 0)
             this.healthPoints = healthPoints;
     }
-
-
     @Override
     public int getWidth() {
-        // them chut do rong de phat hien va cham thuc te hon
         return width - 10;
     }
 }

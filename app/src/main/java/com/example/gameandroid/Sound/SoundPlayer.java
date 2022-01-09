@@ -18,8 +18,7 @@ public class SoundPlayer {
     SharedPreferences preferences;
     private static SoundPool soundPool;
     private static int explosionSound, explosionSound2;
-    private static int bulletSound;
-    private static int intro;
+    private static int bulletSound, enemyFire;
     List<Integer> streams = new ArrayList<Integer>();
 
     public SoundPlayer(Context context) {
@@ -39,9 +38,10 @@ public class SoundPlayer {
             soundPool = new SoundPool(2, AudioManager.STREAM_MUSIC, 0);
         }
 
-        explosionSound = soundPool.load(context, R.raw.explosion, 1);
+        explosionSound = soundPool.load(context, R.raw.explosion, 2);
         explosionSound2 = soundPool.load(context, R.raw.tieng_dan_ban_vao_tuong, 1);
         bulletSound = soundPool.load(context, R.raw.tieng_sung, 1);
+        enemyFire = soundPool.load(context, R.raw.enemylv3_fire, 1);
     }
 
     public void playExplosionSound() {
@@ -54,6 +54,13 @@ public class SoundPlayer {
     public void playBulletSound() {
         if (sound) {
             int streamID = soundPool.play(bulletSound, 1.0f, 1.0f, 1, 0, 1);
+            streams.add(streamID);
+        }
+    }
+
+    public void playEnemyFireSound() {
+        if (sound) {
+            int streamID = soundPool.play(enemyFire, 1.0f, 1.0f, 1, 0, 1);
             streams.add(streamID);
         }
     }

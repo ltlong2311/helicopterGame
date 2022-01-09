@@ -2,7 +2,9 @@ package com.example.gameandroid.Views;
 
 import androidx.appcompat.app.AppCompatActivity;
 
+import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.graphics.Color;
 import android.media.MediaPlayer;
 import android.os.Build;
@@ -24,7 +26,10 @@ public class Home extends AppCompatActivity {
     MusicPlayer musicPlayer;
     SoundPlayer soundPlayer;
     private boolean flag = true;
+    private boolean music;
     public static final String GAME_SETTINGS = "gameSettings";
+    SharedPreferences preferences;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -39,12 +44,11 @@ public class Home extends AppCompatActivity {
         }
         setContentView(R.layout.activity_main);
         getViews();
-        System.out.println("flag: "+ flag);
+        preferences = this.getApplicationContext().getSharedPreferences(Home.GAME_SETTINGS, Context.MODE_PRIVATE);
         if (flag) {
             musicPlayer = new MusicPlayer(this);
-            musicPlayer.playIntroMusic();
-            flag = false;
         }
+        musicPlayer.playIntroMusic();
         soundPlayer = new SoundPlayer(this);
 
         btnStart.setOnClickListener(v -> {
@@ -70,18 +74,16 @@ public class Home extends AppCompatActivity {
 
     @Override
     protected void onPause() {
-        flag = false;
         musicPlayer.pauseIntroMusic();
         super.onPause();
     }
 
     @Override
     protected void onResume() {
-        flag = false;
-        if(musicPlayer == null) {
-            musicPlayer = new MusicPlayer(this);
+        music = preferences.getBoolean("music", true);
+        if(music) {
+            musicPlayer.playIntroMusic();
         }
-        musicPlayer.playIntroMusic();
         super.onResume();
     }
 

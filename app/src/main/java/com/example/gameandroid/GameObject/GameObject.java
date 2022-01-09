@@ -8,7 +8,6 @@ public abstract class GameObject {
     protected int dx;
     protected int width;
     protected int height;
-    private int healthPoints;
 
     public void setX(int x)
     {
@@ -38,4 +37,11 @@ public abstract class GameObject {
     {
         return new Rect(x, y, x+width, y+height);
     }
+    public static double getDistanceBetweenObjects(GameObject obj1, GameObject obj2) {
+        return Math.sqrt(
+                Math.pow(obj2.x - obj1.x, 2) +
+                        Math.pow(obj2.y - obj1.y, 2)
+        );
+    }
 }
+

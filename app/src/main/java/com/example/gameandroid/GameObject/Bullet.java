@@ -4,7 +4,6 @@ import android.graphics.Canvas;
 import android.graphics.Paint;
 
 public class Bullet extends GameObject {
-    private double dxa;
     private Paint bulletStyle;
     Bitmap image;
 

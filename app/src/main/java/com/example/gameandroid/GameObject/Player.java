@@ -1,18 +1,22 @@
 package com.example.gameandroid.GameObject;
 
 
+import android.content.Context;
+import android.content.SharedPreferences;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.Paint;
 
 import com.example.gameandroid.Graphics.Animation;
 import com.example.gameandroid.Panel.GamePanel;
+import com.example.gameandroid.Views.Home;
 
 
 public class Player extends GameObject {
     public static final int MAX_HEALTH_POINTS = 9;
     private Bitmap spritesheet;
     private int score;
+    private int difficultyLv;
     private boolean up, down, left, right;
     private boolean playing;
     private Animation animation = new Animation();
@@ -20,7 +24,7 @@ public class Player extends GameObject {
     private int healthPoints = MAX_HEALTH_POINTS;
     private Paint playerStyle;
 
-    public Player(Bitmap res, int w, int h, int numFrames) {
+    public Player(Bitmap res, int w, int h, int numFrames, int gameMode) {
         x = 90;
         y = GamePanel.HEIGHT / 2;
         dx = 0;
@@ -28,10 +32,9 @@ public class Player extends GameObject {
         score = 0;
         height = h;
         width = w;
-
         Bitmap[] image = new Bitmap[numFrames];
         spritesheet = res;
-
+        difficultyLv = gameMode;
         for (int i = 0; i < image.length; i++) {
             image[i] = Bitmap.createBitmap(spritesheet, i * width, 0, width, height);
         }
@@ -62,7 +65,7 @@ public class Player extends GameObject {
     public void update() {
         long elapsed = (System.nanoTime() - startTime) / 1000000;
         if (elapsed > 2000) {
-            score++;
+            score += difficultyLv;
             startTime = System.nanoTime();
         }
         animation.update();

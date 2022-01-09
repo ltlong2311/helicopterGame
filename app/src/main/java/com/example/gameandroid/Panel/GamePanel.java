@@ -18,6 +18,7 @@ import android.view.SurfaceView;
 
 import androidx.annotation.NonNull;
 
+import com.example.gameandroid.GameObject.EnemyBullet;
 import com.example.gameandroid.Graphics.Background;
 import com.example.gameandroid.Graphics.Explosion;
 import com.example.gameandroid.GameObject.Bullet;
@@ -46,6 +47,7 @@ public class GamePanel extends SurfaceView implements SurfaceHolder.Callback {
     private long smokeStartTime;
     private long missileStartTime;
     private long enemyStartTime, enemyLv2StartTime, enemyLv3StartTime;
+    private long enemyBulletStartTime;
     private MainThread thread;
     private Background bg;
     private Player player;
@@ -55,6 +57,7 @@ public class GamePanel extends SurfaceView implements SurfaceHolder.Callback {
     private ArrayList<Smokepuff> smoke;
     private ArrayList<Missile> missiles;
     private List<Bullet> bulletList;
+    private List<EnemyBullet> enemyBulletList;
     private List<Enemy> enemyList;
     private List<EnemyHealthBar> healthBarEnemyList;
     private Random rand = new Random();
@@ -70,6 +73,7 @@ public class GamePanel extends SurfaceView implements SurfaceHolder.Callback {
     private boolean disappear;
     private boolean started;
     private int best;
+    private int gameMode;
     private int gameDifficulty;
     private SoundPlayer sound;
     MusicPlayer musicPlayer;
@@ -86,23 +90,24 @@ public class GamePanel extends SurfaceView implements SurfaceHolder.Callback {
     @Override
     public void surfaceCreated(@NonNull SurfaceHolder holder) {
         preferences = getContext().getApplicationContext().getSharedPreferences(Home.GAME_SETTINGS, Context.MODE_PRIVATE);
+        gameMode = preferences.getInt("mode", 1);
+        best = preferences.getInt("highestScore", 1);
         bg = new Background(BitmapFactory.decodeResource(getResources(), R.drawable.bg4));
-        player = new Player(BitmapFactory.decodeResource(getResources(), R.drawable.helicopter), 65, 25, 3);
+        player = new Player(BitmapFactory.decodeResource(getResources(), R.drawable.helicopter), 65, 25, 3, gameMode);
         healthStatus = new HealthStatus(BitmapFactory.decodeResource(getResources(),R.drawable.hpbar_emty_9), 15, 10);
         largeHealthBar = new LargeHealthBar(player, healthStatus, 1);
         healthBar = new HealthBar(player, 65, 12, 2);
         smoke = new ArrayList<Smokepuff>();
         missiles = new ArrayList<Missile>();
         bulletList = new ArrayList<Bullet>();
+        enemyBulletList = new ArrayList<EnemyBullet>();
         enemyList = new ArrayList<Enemy>();
         healthBarEnemyList = new ArrayList<EnemyHealthBar>();
         enemyStartTime = System.nanoTime();
         smokeStartTime = System.nanoTime();
         missileStartTime = System.nanoTime();
         thread = new MainThread(getHolder(), this);
-        int gameMode = preferences.getInt("mode", 1);
         gameDifficulty = - (4 + gameMode);
-        best = preferences.getInt("highestScore", 1);
         bg.setVector(gameDifficulty);
         sound = new SoundPlayer(getContext());
         musicPlayer = new MusicPlayer(getContext());
@@ -136,8 +141,6 @@ public class GamePanel extends SurfaceView implements SurfaceHolder.Callback {
     public boolean onTouchEvent(MotionEvent event) {
         int touchX = (int) event.getX();
         int touchY = (int) event.getY();
-        int playerPosX = player.getX();
-        int playerPosY = player.getY();
         if (event.getAction() == MotionEvent.ACTION_DOWN) {
             if (!player.getPlaying() && newGameCreated && reset) {
                 player.setPlaying(true);
@@ -159,19 +162,16 @@ public class GamePanel extends SurfaceView implements SurfaceHolder.Callback {
                 if (down.contains((int) (touchX/scaleX), (int) (touchY/scaleY))) {
                     isFocusDownButton = true;
                     player.setDown(true);
-                    System.out.println("Down");
                 };
                 Rect left = new Rect(20, HEIGHT - 100, 80,HEIGHT - 40);
                 if (left.contains((int) (touchX/scaleX), (int) (touchY/scaleY))) {
                     isFocusLeftButton = true;
                     player.setLeft(true);
-                    System.out.println("left");
                 };
                 Rect right = new Rect(140, HEIGHT - 100, 200,HEIGHT - 40);
                 if (right.contains((int) (touchX/scaleX), (int) (touchY/scaleY))) {
                     isFocusRightButton = true;
                     player.setRight(true);
-                    System.out.println("right");
                 };
                 // aim button position
                 Rect aim = new Rect((int) ((WIDTH - 125)*scaleX), (int) ((HEIGHT - 100)*scaleY),
@@ -180,7 +180,7 @@ public class GamePanel extends SurfaceView implements SurfaceHolder.Callback {
                 if (aim.contains(touchX, touchY)){
                     isFocusAimButton = true;
                     bulletList.add(new Bullet(
-                            BitmapFactory.decodeResource(getResources(), R.drawable.bullet_15),
+                            BitmapFactory.decodeResource(getResources(), R.drawable.bullet20),
                             player));
                     System.out.println("Touched Aim Button");
                     sound.playBulletSound();
@@ -277,7 +277,7 @@ public class GamePanel extends SurfaceView implements SurfaceHolder.Callback {
                         break;
                 }
                 enemyList.add(new Enemy(enemyType,
-                        WIDTH + 10, 60 + (int) (rand.nextDouble() * (HEIGHT - 160)), 60, 60, player.getScore(), 2, 7, gameDifficulty));   // min - ran*(max-min)
+                        WIDTH + 10, 60 + (int) (rand.nextDouble() * (HEIGHT - 160)), 60, 60, player.getScore(), 2, 7, gameMode));   // min - ran*(max-min)
                 enemyStartTime = System.nanoTime();
             }
 
@@ -296,7 +296,7 @@ public class GamePanel extends SurfaceView implements SurfaceHolder.Callback {
                         break;
                 }
                 enemyList.add(new Enemy(enemyLv2Type,
-                        WIDTH + 10, 65 + (int) ( rand.nextDouble() * (HEIGHT - 315)), 65, 65, player.getScore(), 1, 12, gameDifficulty));
+                        WIDTH + 10, 65 + (int) ( rand.nextDouble() * (HEIGHT - 315)), 65, 65, player.getScore(), 1, 12, gameMode));
                 enemyLv2StartTime = System.nanoTime();
             }
 
@@ -312,7 +312,7 @@ public class GamePanel extends SurfaceView implements SurfaceHolder.Callback {
                         break;
                 }
                 enemyList.add(new Enemy(enemyLv3Type,
-                        WIDTH + 10, 100 + (int) (rand.nextDouble() * (HEIGHT - 200)), 80, 80, player.getScore(), 5, 5, gameDifficulty));
+                        WIDTH + 10, 100 + (int) (rand.nextDouble() * (HEIGHT - 200)), 80, 80, player.getScore(), 5, 4, gameMode));
                 enemyLv3StartTime = System.nanoTime();
             }
 
@@ -340,6 +340,16 @@ public class GamePanel extends SurfaceView implements SurfaceHolder.Callback {
                     enemyList.get(i).setHealthPoint(0);
                     enemyList.remove(i);
                     break;
+                }
+                if (enemyList.get(i).getMaxHealthPoints() == 5){
+                    long enemyBulletElapsed = (System.nanoTime() - enemyBulletStartTime) / 1000000;
+                    if (enemyBulletElapsed > 3000) {
+                        enemyBulletList.add(new EnemyBullet(
+                                BitmapFactory.decodeResource(getResources(), R.drawable.bullet_trip), 50, 15,
+                                player, enemyList.get(i)));
+                        sound.playEnemyFireSound();
+                        enemyBulletStartTime = System.nanoTime();
+                    }
                 }
             }
             explosion.update();
@@ -381,9 +391,35 @@ public class GamePanel extends SurfaceView implements SurfaceHolder.Callback {
                             bulletList.remove(i);
                             enemyList.remove(j);
                         }
-//                        soundPool.play(sound1, 1, 1, 1, 1, 1);
                         break;
                     }
+                }
+            }
+            explosion.update();
+
+            for (EnemyBullet eb: enemyBulletList) {
+                eb.update();
+            }
+
+            for (int i = 0; i <  enemyBulletList.size(); i++) {
+                if ( enemyBulletList.get(i).getX() < - 100) {
+                    enemyBulletList.remove(i);
+                    break;
+                }
+                if (collision(enemyBulletList.get(i), player)) {
+                    if (player.getHealthPoint() > 1) {
+                        sound.playExplosionSound();
+                        explosion = new Explosion(BitmapFactory.decodeResource(getResources(),R.drawable.explosion), enemyBulletList.get(i).getX() - 25,
+                                enemyBulletList.get(i).getY() - 20, 100, 100, 25, 2);
+                        player.setHealthPoint(player.getHealthPoint() - 1);
+                        enemyBulletList.remove(i);
+                    } else {
+                        sound.playExplosionSound();
+                        enemyBulletList.remove(i);
+                        player.setHealthPoint(player.MAX_HEALTH_POINTS);
+                        player.setPlaying(false);
+                    }
+                    break;
                 }
             }
             explosion.update();
@@ -435,7 +471,6 @@ public class GamePanel extends SurfaceView implements SurfaceHolder.Callback {
     }
 
     public boolean collision(GameObject a, GameObject b) {
-        // tim giao diem cua hinh chu nhat hien tai va hinh chu nhat duoc chi dinh va tra ve ket qua
         return Rect.intersects(a.getRectangle(), b.getRectangle());
     }
 
@@ -470,9 +505,11 @@ public class GamePanel extends SurfaceView implements SurfaceHolder.Callback {
                     h.draw(canvas);
                 }
             }
-
             for (Bullet b: bulletList) {
                 b.draw(canvas);
+            }
+            for (EnemyBullet eb: enemyBulletList) {
+                eb.draw(canvas);
             }
             if(started){
                 explosion.draw(canvas);
@@ -575,8 +612,8 @@ public class GamePanel extends SurfaceView implements SurfaceHolder.Callback {
             Paint style = new Paint(Paint.ANTI_ALIAS_FLAG);
             style.setTextSize(30);
             style.setTypeface(Typeface.createFromAsset(getContext().getAssets(),"SourceSansPro-Black.otf"));
-            style.setColor(Color.parseColor("#ebd100"));
-            canvas.drawText("BEST: "+ best, WIDTH/2-50, HEIGHT/2 - 30, style);
+            style.setColor(Color.parseColor("#ffd52b"));
+            canvas.drawText("BEST: "+ best, WIDTH/2-50, HEIGHT/2 - 40, style);
 
             Paint style2 = new Paint(Paint.ANTI_ALIAS_FLAG);
             style2.setTextSize(25);

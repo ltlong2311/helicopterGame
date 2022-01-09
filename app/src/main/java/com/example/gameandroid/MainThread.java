@@ -31,10 +31,8 @@ public class MainThread extends Thread {
         while (running){
             startTime = System.nanoTime();
             canvas = null;
-
-            //try locking the canvas for pixel editing
             try {
-                canvas = this.surfaceHolder.lockCanvas();
+                canvas = this.surfaceHolder.lockCanvas();  //     try locking canvas de chinh sua pixel
                 synchronized (surfaceHolder) {
                     this.gamePanel.update();
                     this.gamePanel.draw(canvas);
@@ -45,7 +43,7 @@ public class MainThread extends Thread {
             finally {
                 if (canvas!=null){
                     try {
-                        surfaceHolder.unlockCanvasAndPost(canvas);
+                        surfaceHolder.unlockCanvasAndPost(canvas); // Hoan thanh viec chinh sua cac pixel tren surface
                     }catch (Exception e){
                         e.printStackTrace();
                     }
